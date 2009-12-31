@@ -763,9 +763,7 @@ static Local<Object> Load(int argc, char *argv[]) {
   NODE_SET_METHOD(process, "compile", Compile);
   NODE_SET_METHOD(process, "_byteLength", ByteLength);
   NODE_SET_METHOD(process, "reallyExit", Exit);
-  NODE_SET_METHOD(process, "chdir", FileSystem::Chdir);
-  NODE_SET_METHOD(process, "cwd", FileSystem::Cwd);
-  NODE_SET_METHOD(process, "umask", FileSystem::Umask);
+  FileSystem::Initialize(process);
   NODE_SET_METHOD(process, "dlopen", DLOpen);
   NODE_SET_METHOD(process, "kill", Kill);
   NODE_SET_METHOD(process, "memoryUsage", MemoryUsage);

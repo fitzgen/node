@@ -421,6 +421,12 @@ void File::Initialize(Handle<Object> target) {
   encoding_symbol = NODE_PSYMBOL("node:encoding");
 }
 
+void FileSystem::Initialize(Handle<Object> target) {
+  NODE_SET_METHOD(target, "chdir", FileSystem::Chdir);
+  NODE_SET_METHOD(target, "cwd", FileSystem::Cwd);
+  NODE_SET_METHOD(target, "umask", FileSystem::Umask);
+};
+
 Handle<Value> FileSystem::Chdir(const Arguments& args) {
   HandleScope scope;
  
