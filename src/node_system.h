@@ -8,6 +8,7 @@ namespace node {
   class System {
    public:
     static void Initialize(v8::Handle<v8::Object> target, int argc, char **argv, char **environ);
+    static v8::Handle<v8::Value> Compile(const v8::Arguments& args);
   };
 }
 

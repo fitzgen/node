@@ -52,3 +52,23 @@ void System::Initialize(Handle<Object> target, int argc, char **argv, char **env
   target->Set(String::NewSymbol("ENV"), env);
 }
 
+Handle<Value> System::Compile(const Arguments& args) {
+  HandleScope scope;
+
+  if (args.Length() < 2) {
+    return ThrowException(Exception::TypeError(
+          String::New("needs two arguments.")));
+  }
+
+  Local<String> source = args[0]->ToString();
+  Local<String> filename = args[1]->ToString();
+
+  Handle<Script> script = Script::Compile(source, filename);
+  if (script.IsEmpty()) return Undefined();
+
+  Handle<Value> result = script->Run();
+  if (result.IsEmpty()) return Undefined();
+
+  return scope.Close(result);
+}
+

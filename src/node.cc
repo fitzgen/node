@@ -569,26 +569,6 @@ Handle<Value> DLOpen(const v8::Arguments& args) {
   return Undefined();
 }
 
-v8::Handle<v8::Value> Compile(const v8::Arguments& args) {
-  HandleScope scope;
-
-  if (args.Length() < 2) {
-    return ThrowException(Exception::TypeError(
-          String::New("needs two arguments.")));
-  }
-
-  Local<String> source = args[0]->ToString();
-  Local<String> filename = args[1]->ToString();
-
-  Handle<Script> script = Script::Compile(source, filename);
-  if (script.IsEmpty()) return Undefined();
-
-  Handle<Value> result = script->Run();
-  if (result.IsEmpty()) return Undefined();
-
-  return scope.Close(result);
-}
-
 static void OnFatalError(const char* location, const char* message) {
   if (location) {
     fprintf(stderr, "FATAL ERROR: %s %s\n", location, message);
@@ -724,7 +704,7 @@ static Local<Object> Load(int argc, char *argv[]) {
 
   // define various internal methods
   Events::Initialize(process);
-  NODE_SET_METHOD(process, "compile", Compile);
+  NODE_SET_METHOD(process, "compile", System::Compile);
   NODE_SET_METHOD(process, "_byteLength", ByteLength);
   NODE_SET_METHOD(process, "reallyExit", Exit);
   FileSystem::Initialize(process);
