@@ -21,7 +21,7 @@ void System::Initialize(Handle<Object> target, int argc, char **argv, char **env
 #define str(s) #s
   target->Set(String::NewSymbol("platform"), String::New(xstr(PLATFORM)));
 
-  // ARGV
+  // args
   int i, j;
   Local<Array> arguments = Array::New(argc + 1);
   arguments->Set(Integer::New(0), String::New(argv[0]));
@@ -30,9 +30,10 @@ void System::Initialize(Handle<Object> target, int argc, char **argv, char **env
     arguments->Set(Integer::New(j), arg);
   }
   // assign it
+  target->Set(String::NewSymbol("args"), arguments);
   target->Set(String::NewSymbol("ARGV"), arguments);
 
-  // ENV
+  // env
   Local<Object> env = Object::New();
   for (i = 0; environ[i]; i++) {
     // skip entries without a '=' character
@@ -47,6 +48,7 @@ void System::Initialize(Handle<Object> target, int argc, char **argv, char **env
     env->Set(field, value);
   }
   // assign ENV
+  target->Set(String::NewSymbol("env"), env);
   target->Set(String::NewSymbol("ENV"), env);
 }
 
