@@ -22,6 +22,7 @@
 #include <node_stdio.h>
 #include <node_natives.h>
 #include <node_version.h>
+#include <node_system.h>
 
 #include <v8-debug.h>
 
@@ -719,43 +720,6 @@ static Local<Object> Load(int argc, char *argv[]) {
   // Assign the process object to its place.
   global->Set(String::NewSymbol("process"), process);
 
-  // process.version
-  process->Set(String::NewSymbol("version"), String::New(NODE_VERSION));
-  // process.installPrefix
-  process->Set(String::NewSymbol("installPrefix"), String::New(NODE_PREFIX));
-
-  // process.platform
-#define xstr(s) str(s)
-#define str(s) #s
-  process->Set(String::NewSymbol("platform"), String::New(xstr(PLATFORM)));
-
-  // process.ARGV
-  int i, j;
-  Local<Array> arguments = Array::New(argc - dash_dash_index + 1);
-  arguments->Set(Integer::New(0), String::New(argv[0]));
-  for (j = 1, i = dash_dash_index + 1; i < argc; j++, i++) {
-    Local<String> arg = String::New(argv[i]);
-    arguments->Set(Integer::New(j), arg);
-  }
-  // assign it
-  process->Set(String::NewSymbol("ARGV"), arguments);
-
-  // create process.ENV
-  Local<Object> env = Object::New();
-  for (i = 0; environ[i]; i++) {
-    // skip entries without a '=' character
-    for (j = 0; environ[i][j] && environ[i][j] != '='; j++) { ; }
-    // create the v8 objects
-    Local<String> field = String::New(environ[i], j);
-    Local<String> value = Local<String>();
-    if (environ[i][j] == '=') {
-      value = String::New(environ[i]+j+1);
-    }
-    // assign them
-    env->Set(field, value);
-  }
-  // assign process.ENV
-  process->Set(String::NewSymbol("ENV"), env);
   process->Set(String::NewSymbol("pid"), Integer::New(getpid()));
 
   // define various internal methods
@@ -780,6 +744,11 @@ static Local<Object> Load(int argc, char *argv[]) {
 
 
   // Initialize the C++ modules..................filename of module
+  System::Initialize(                           // node_system.{h,cc}
+    process,
+    argc - dash_dash_index, argv + dash_dash_index,
+    environ
+  );
   Stdio::Initialize(process);                  // stdio.cc
   Timer::Initialize(process);                  // timer.cc
   SignalHandler::Initialize(process);          // signal_handler.cc
