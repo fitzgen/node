@@ -804,8 +804,7 @@ static Local<Object> Load(int argc, char *argv[]) {
   process->Set(String::NewSymbol("pid"), Integer::New(getpid()));
 
   // define various internal methods
-  NODE_SET_METHOD(process, "loop", Events::Loop);
-  NODE_SET_METHOD(process, "unloop", Events::Unloop);
+  Events::Initialize(process);
   NODE_SET_METHOD(process, "compile", Compile);
   NODE_SET_METHOD(process, "_byteLength", ByteLength);
   NODE_SET_METHOD(process, "reallyExit", Exit);

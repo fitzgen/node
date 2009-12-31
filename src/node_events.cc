@@ -100,6 +100,11 @@ bool EventEmitter::Emit(Handle<String> event, int argc, Handle<Value> argv[]) {
   return ReallyEmit(handle_, event, argc, argv);
 }
 
+void Events::Initialize(Handle<Object> exports) {
+  NODE_SET_METHOD(exports, "loop", Events::Loop);
+  NODE_SET_METHOD(exports, "unloop", Events::Unloop);
+}
+
 Handle<Value> Events::Loop(const Arguments& args) {
   HandleScope scope;
   ev_loop(EV_DEFAULT_UC_ 0);
