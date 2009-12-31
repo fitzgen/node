@@ -9,6 +9,7 @@
 #include <assert.h>
 #include <string.h>
 #include <errno.h>
+#include <limits.h> /* PATH_MAX */
 
 namespace node {
 
@@ -326,7 +327,7 @@ static Handle<Value> Open(const Arguments& args) {
  * 1 data      the data to write (string = utf8, array = raw)
  * 2 position  if integer, position to write at in the file.
  *             if null, write from the current position
- * 3 encoding  
+ * 3 encoding
  */
 static Handle<Value> Write(const Arguments& args) {
   HandleScope scope;
@@ -420,4 +421,48 @@ void File::Initialize(Handle<Object> target) {
   encoding_symbol = NODE_PSYMBOL("node:encoding");
 }
 
+Handle<Value> FileSystem::Chdir(const Arguments& args) {
+  HandleScope scope;
+ 
+  if (args.Length() != 1 || !args[0]->IsString()) {
+    return ThrowException(Exception::Error(String::New("Bad argument.")));
+  }
+ 
+  String::Utf8Value path(args[0]->ToString());
+ 
+  int r = chdir(*path);
+ 
+  if (r != 0) {
+    return ThrowException(Exception::Error(String::New(strerror(errno))));
+  }
+ 
+  return Undefined();
+}
+ 
+Handle<Value> FileSystem::Cwd(const Arguments& args) {
+  HandleScope scope;
+ 
+  char output[PATH_MAX];
+  char *r = getcwd(output, PATH_MAX);
+  if (r == NULL) {
+    return ThrowException(Exception::Error(String::New(strerror(errno))));
+  }
+  Local<String> cwd = String::New(output);
+ 
+  return scope.Close(cwd);
+}
+ 
+Handle<Value> FileSystem::Umask(const Arguments& args) {
+  HandleScope scope;
+ 
+  if(args.Length() < 1 || !args[0]->IsInt32()) {
+    return ThrowException(Exception::TypeError(
+          String::New("argument must be an integer.")));
+  }
+  unsigned int mask = args[0]->Uint32Value();
+  unsigned int old = umask((mode_t)mask);
+ 
+  return scope.Close(Uint32::New(old));
+}
+ 
 }  // end namespace node

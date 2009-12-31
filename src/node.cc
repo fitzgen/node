@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <limits.h> /* PATH_MAX */
 #include <assert.h>
 #include <unistd.h>
 #include <errno.h>
@@ -332,50 +331,6 @@ static Handle<Value> ByteLength(const Arguments& args) {
   Local<Integer> length = Integer::New(DecodeBytes(args[0], ParseEncoding(args[1], UTF8)));
 
   return scope.Close(length);
-}
-
-static Handle<Value> Chdir(const Arguments& args) {
-  HandleScope scope;
-  
-  if (args.Length() != 1 || !args[0]->IsString()) {
-    return ThrowException(Exception::Error(String::New("Bad argument.")));
-  }
-  
-  String::Utf8Value path(args[0]->ToString());
-  
-  int r = chdir(*path);
-  
-  if (r != 0) {
-    return ThrowException(Exception::Error(String::New(strerror(errno))));
-  }
-
-  return Undefined();
-}
-
-static Handle<Value> Cwd(const Arguments& args) {
-  HandleScope scope;
-
-  char output[PATH_MAX];
-  char *r = getcwd(output, PATH_MAX);
-  if (r == NULL) {
-    return ThrowException(Exception::Error(String::New(strerror(errno))));
-  }
-  Local<String> cwd = String::New(output);
-
-  return scope.Close(cwd);
-}
-
-static Handle<Value> Umask(const Arguments& args){
-  HandleScope scope;
-
-  if(args.Length() < 1 || !args[0]->IsInt32()) {		
-    return ThrowException(Exception::TypeError(
-          String::New("argument must be an integer.")));
-  }
-  unsigned int mask = args[0]->Uint32Value();
-  unsigned int old = umask((mode_t)mask);
-  
-  return scope.Close(Uint32::New(old));
 }
 
 v8::Handle<v8::Value> Exit(const v8::Arguments& args) {
@@ -808,9 +763,9 @@ static Local<Object> Load(int argc, char *argv[]) {
   NODE_SET_METHOD(process, "compile", Compile);
   NODE_SET_METHOD(process, "_byteLength", ByteLength);
   NODE_SET_METHOD(process, "reallyExit", Exit);
-  NODE_SET_METHOD(process, "chdir", Chdir);
-  NODE_SET_METHOD(process, "cwd", Cwd);
-  NODE_SET_METHOD(process, "umask", Umask);
+  NODE_SET_METHOD(process, "chdir", FileSystem::Chdir);
+  NODE_SET_METHOD(process, "cwd", FileSystem::Cwd);
+  NODE_SET_METHOD(process, "umask", FileSystem::Umask);
   NODE_SET_METHOD(process, "dlopen", DLOpen);
   NODE_SET_METHOD(process, "kill", Kill);
   NODE_SET_METHOD(process, "memoryUsage", MemoryUsage);
