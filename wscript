@@ -322,6 +322,7 @@ def build(bld):
   node.target       = "node"
   node.source = """
     src/node.cc
+    src/node_process.cc
     src/node_system.cc
     src/node_os.cc
     src/node_child_process.cc
