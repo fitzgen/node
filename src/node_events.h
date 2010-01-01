@@ -7,6 +7,12 @@
 
 namespace node {
 
+class Events {
+ public:
+  static v8::Handle<v8::Value> Loop(const v8::Arguments& args);
+  static v8::Handle<v8::Value> Unloop(const v8::Arguments& args);
+};
+
 class EventEmitter : public ObjectWrap {
  public:
   static void Initialize(v8::Local<v8::FunctionTemplate> ctemplate);

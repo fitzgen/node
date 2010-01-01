@@ -100,4 +100,23 @@ bool EventEmitter::Emit(Handle<String> event, int argc, Handle<Value> argv[]) {
   return ReallyEmit(handle_, event, argc, argv);
 }
 
+Handle<Value> Events::Loop(const Arguments& args) {
+  HandleScope scope;
+  ev_loop(EV_DEFAULT_UC_ 0);
+  return Undefined();
+}
+
+Handle<Value> Events::Unloop(const Arguments& args) {
+  HandleScope scope;
+  int how = EVUNLOOP_ONE;
+  if (args[0]->IsString()) {
+    String::Utf8Value how_s(args[0]->ToString());
+    if (0 == strcmp(*how_s, "all")) {
+      how = EVUNLOOP_ALL;
+    }
+  }
+  ev_unloop(EV_DEFAULT_ how);
+  return Undefined();
+}
+
 }  // namespace node
