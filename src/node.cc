@@ -267,7 +267,7 @@ static void EIOCallback(EV_P_ ev_async *watcher, int revents) {
 }
 
 // EIOWantPoll() is called from the EIO thread pool each time an EIO
-// request (that is, one of the node.fs.* functions) has completed.
+// request (that is, one of the process.fs.* functions) has completed.
 static void EIOWantPoll(void) {
   // Signal the main thread that EIO callbacks need to be processed.
   ev_async_send(EV_DEFAULT_UC_ &eio_watcher);
@@ -327,13 +327,6 @@ static Local<Object> Load(int argc, char *argv[]) {
   // Assign the process object to its place.
   global->Set(String::NewSymbol("process"), process);
 
-  // Initialize the process object
-  Process::Initialize(process);
-
-  // define various internal methods
-  Events::Initialize(process);
-  FileSystem::Initialize(process);
-  Os::Initialize(process);
 
   // Initialize the stats object
   Local<FunctionTemplate> stat_templ = FunctionTemplate::New();
@@ -342,37 +335,46 @@ static Local<Object> Load(int argc, char *argv[]) {
       stats_constructor_template->GetFunction());
 
 
-  // Initialize the C++ modules..................filename of module
+  // Initialize the C++ modules....................filenames of module
+  Process::Initialize(process);                 // node_process.{h,cc}
+  Events::Initialize(process);                  // node_events.{h,cc}
+  FileSystem::Initialize(process);              // node_file.{h,cc}
+  Os::Initialize(process);                      // node_os.{h,cc}
   System::Initialize(                           // node_system.{h,cc}
     process,
     argc - dash_dash_index, argv + dash_dash_index,
     environ
   );
-  Stdio::Initialize(process);                  // stdio.cc
-  Timer::Initialize(process);                  // timer.cc
-  SignalHandler::Initialize(process);          // signal_handler.cc
-  Stat::Initialize(process);                   // stat.cc
-  ChildProcess::Initialize(process);           // child_process.cc
-  Constants::Initialize(process);              // constants.cc
-  // Create node.dns
+  Stdio::Initialize(process);                   // node_stdio.{h,cc}
+  Timer::Initialize(process);                   // node_timer.{h,cc}
+  SignalHandler::Initialize(process);           // node_signal_handler.{h,cc}
+  Stat::Initialize(process);                    // node_stat.{h,cc}
+  ChildProcess::Initialize(process);            // node_child_process.{h,cc}
+  Constants::Initialize(process);               // node_constants.{h,cc}
+
+  // Create process.dns
   Local<Object> dns = Object::New();
   process->Set(String::NewSymbol("dns"), dns);
-  DNS::Initialize(dns);                         // dns.cc
+  DNS::Initialize(dns);                         // node_dns.{h,cc}
+
+  // Create process.fs
   Local<Object> fs = Object::New();
   process->Set(String::NewSymbol("fs"), fs);
-  File::Initialize(fs);                         // file.cc
-  // Create node.tcp. Note this separate from lib/tcp.js which is the public
+  File::Initialize(fs);                         // node_file.{h,cc}
+
+  // Create process.tcp. Note this separate from lib/tcp.js which is the public
   // frontend.
   Local<Object> tcp = Object::New();
   process->Set(String::New("tcp"), tcp);
-  Server::Initialize(tcp);                      // tcp.cc
-  Connection::Initialize(tcp);                  // tcp.cc
-  // Create node.http.  Note this separate from lib/http.js which is the
+  Server::Initialize(tcp);                      // node_tcp.{h,cc}
+  Connection::Initialize(tcp);                  // node_tcp.{h,cc}
+
+  // Create process.http.  Note this separate from lib/http.js which is the
   // public frontend.
   Local<Object> http = Object::New();
   process->Set(String::New("http"), http);
-  HTTPServer::Initialize(http);                 // http.cc
-  HTTPConnection::Initialize(http);             // http.cc
+  HTTPServer::Initialize(http);                 // node_http.{h,cc}
+  HTTPConnection::Initialize(http);             // node_http.{h,cc}
 
   // Compile, execute the src/*.js files. (Which were included a static C
   // strings in node_natives.h)
