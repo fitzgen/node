@@ -512,7 +512,7 @@ v8::Handle<v8::Value> Kill(const v8::Arguments& args) {
     } else if (args[1]->IsString()) {
       Local<String> signame = args[1]->ToString();
 
-      Local<Value> sig_v = process->Get(signame);
+      Local<Value> sig_v = Constants::constants->Get(signame);
       if (!sig_v->IsNumber()) {
         return ThrowException(Exception::Error(String::New("Unknown signal")));
       }
@@ -729,7 +729,7 @@ static Local<Object> Load(int argc, char *argv[]) {
   SignalHandler::Initialize(process);          // signal_handler.cc
   Stat::Initialize(process);                   // stat.cc
   ChildProcess::Initialize(process);           // child_process.cc
-  DefineConstants(process);                    // constants.cc
+  Constants::Initialize(process);              // constants.cc
   // Create node.dns
   Local<Object> dns = Object::New();
   process->Set(String::NewSymbol("dns"), dns);

@@ -12,7 +12,11 @@ namespace node {
 
 using namespace v8;
 
-void DefineConstants(Handle<Object> target) {
+v8::Handle<v8::Object> Constants::constants;
+
+void Constants::Initialize(Handle<Object> target) {
+  Constants::constants = target; // for use in other modules.
+
   // file access modes
   NODE_DEFINE_CONSTANT(target, O_RDONLY);
   NODE_DEFINE_CONSTANT(target, O_WRONLY);

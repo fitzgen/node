@@ -6,7 +6,13 @@
 #include <v8.h>
 
 namespace node {
-void DefineConstants(v8::Handle<v8::Object> target);
+
+class Constants {
+ public:
+  static void Initialize(v8::Handle<v8::Object> target);
+  static v8::Handle<v8::Object> constants;
+};
+
 }  // namespace node
 
 #endif  // SRC_CONSTANTS_H_
