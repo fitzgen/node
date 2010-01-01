@@ -663,10 +663,9 @@ static Local<Object> Load(int argc, char *argv[]) {
   // define various internal methods
   Events::Initialize(process);
   NODE_SET_METHOD(process, "_byteLength", ByteLength);
-  NODE_SET_METHOD(process, "reallyExit", Os::Exit);
   FileSystem::Initialize(process);
+  Os::Initialize(process);
   NODE_SET_METHOD(process, "dlopen", DLOpen);
-  NODE_SET_METHOD(process, "kill", Os::Kill);
   NODE_SET_METHOD(process, "memoryUsage", MemoryUsage);
 
   // Initialize the stats object

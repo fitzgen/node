@@ -10,7 +10,7 @@ using namespace node;
 
 void Os::Initialize(Handle<Object> target) {
   NODE_SET_METHOD(target, "kill", Kill);
-  NODE_SET_METHOD(target, "exit", Exit);
+  NODE_SET_METHOD(target, "reallyExit", Exit);
 }
 
 v8::Handle<v8::Value> Os::Kill(const v8::Arguments& args) {
