@@ -101,6 +101,10 @@ bool EventEmitter::Emit(Handle<String> event, int argc, Handle<Value> argv[]) {
 }
 
 void Events::Initialize(Handle<Object> exports) {
+  // Assign the EventEmitter. It was created in main().
+  exports->Set(String::NewSymbol("EventEmitter"),
+               EventEmitter::constructor_template->GetFunction());
+
   NODE_SET_METHOD(exports, "loop", Events::Loop);
   NODE_SET_METHOD(exports, "unloop", Events::Unloop);
 }

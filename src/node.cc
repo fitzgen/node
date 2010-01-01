@@ -711,10 +711,6 @@ static Local<Object> Load(int argc, char *argv[]) {
   NODE_SET_METHOD(process, "kill", Kill);
   NODE_SET_METHOD(process, "memoryUsage", MemoryUsage);
 
-  // Assign the EventEmitter. It was created in main().
-  process->Set(String::NewSymbol("EventEmitter"),
-               EventEmitter::constructor_template->GetFunction());
-
   // Initialize the stats object
   Local<FunctionTemplate> stat_templ = FunctionTemplate::New();
   stats_constructor_template = Persistent<FunctionTemplate>::New(stat_templ);
