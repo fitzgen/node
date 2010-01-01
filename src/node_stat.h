@@ -12,8 +12,23 @@ class Stat : EventEmitter {
  public:
   static void Initialize(v8::Handle<v8::Object> target);
 
+  static v8::Persistent<v8::FunctionTemplate> stats_constructor_template;
+  static v8::Persistent<v8::String> dev_symbol;
+  static v8::Persistent<v8::String> ino_symbol;
+  static v8::Persistent<v8::String> mode_symbol;
+  static v8::Persistent<v8::String> nlink_symbol;
+  static v8::Persistent<v8::String> uid_symbol;
+  static v8::Persistent<v8::String> gid_symbol;
+  static v8::Persistent<v8::String> rdev_symbol;
+  static v8::Persistent<v8::String> size_symbol;
+  static v8::Persistent<v8::String> blksize_symbol;
+  static v8::Persistent<v8::String> blocks_symbol;
+  static v8::Persistent<v8::String> atime_symbol;
+  static v8::Persistent<v8::String> mtime_symbol;
+  static v8::Persistent<v8::String> ctime_symbol;
  protected:
   static v8::Persistent<v8::FunctionTemplate> constructor_template;
+
 
   Stat() : EventEmitter() {
     persistent_ = false;

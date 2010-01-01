@@ -10,6 +10,21 @@ namespace node {
 using namespace v8;
 
 Persistent<FunctionTemplate> Stat::constructor_template;
+Persistent<FunctionTemplate> Stat::stats_constructor_template;
+
+Persistent<String> dev_symbol;
+Persistent<String> ino_symbol;
+Persistent<String> mode_symbol;
+Persistent<String> nlink_symbol;
+Persistent<String> uid_symbol;
+Persistent<String> gid_symbol;
+Persistent<String> rdev_symbol;
+Persistent<String> size_symbol;
+Persistent<String> blksize_symbol;
+Persistent<String> blocks_symbol;
+Persistent<String> atime_symbol;
+Persistent<String> mtime_symbol;
+Persistent<String> ctime_symbol;
 
 static Persistent<String> change_symbol;
 static Persistent<String> stop_symbol;
@@ -30,6 +45,13 @@ void Stat::Initialize(Handle<Object> target) {
   NODE_SET_PROTOTYPE_METHOD(constructor_template, "stop", Stat::Stop);
 
   target->Set(String::NewSymbol("Stat"), constructor_template->GetFunction());
+
+  // Initialize the stats object
+  Local<FunctionTemplate> stat_templ = FunctionTemplate::New();
+  stats_constructor_template = Persistent<FunctionTemplate>::New(stat_templ);
+  target->Set(String::NewSymbol("Stats"),
+      Stat::stats_constructor_template->GetFunction());
+
 }
 
 
@@ -104,6 +126,71 @@ void Stat::Stop () {
     Unref();
   }
 }
+
+Local<Object> BuildStatsObject(struct stat * s) {
+  HandleScope scope;
+
+  if (dev_symbol.IsEmpty()) {
+    dev_symbol = NODE_PSYMBOL("dev");
+    ino_symbol = NODE_PSYMBOL("ino");
+    mode_symbol = NODE_PSYMBOL("mode");
+    nlink_symbol = NODE_PSYMBOL("nlink");
+    uid_symbol = NODE_PSYMBOL("uid");
+    gid_symbol = NODE_PSYMBOL("gid");
+    rdev_symbol = NODE_PSYMBOL("rdev");
+    size_symbol = NODE_PSYMBOL("size");
+    blksize_symbol = NODE_PSYMBOL("blksize");
+    blocks_symbol = NODE_PSYMBOL("blocks");
+    atime_symbol = NODE_PSYMBOL("atime");
+    mtime_symbol = NODE_PSYMBOL("mtime");
+    ctime_symbol = NODE_PSYMBOL("ctime");
+  }
+
+  Local<Object> stats =
+    Stat::stats_constructor_template->GetFunction()->NewInstance();
+
+  /* ID of device containing file */
+  stats->Set(dev_symbol, Integer::New(s->st_dev));
+
+  /* inode number */
+  stats->Set(ino_symbol, Integer::New(s->st_ino));
+
+  /* protection */
+  stats->Set(mode_symbol, Integer::New(s->st_mode));
+
+  /* number of hard links */
+  stats->Set(nlink_symbol, Integer::New(s->st_nlink));
+
+  /* user ID of owner */
+  stats->Set(uid_symbol, Integer::New(s->st_uid));
+
+  /* group ID of owner */
+  stats->Set(gid_symbol, Integer::New(s->st_gid));
+
+  /* device ID (if special file) */
+  stats->Set(rdev_symbol, Integer::New(s->st_rdev));
+
+  /* total size, in bytes */
+  stats->Set(size_symbol, Integer::New(s->st_size));
+
+  /* blocksize for filesystem I/O */
+  stats->Set(blksize_symbol, Integer::New(s->st_blksize));
+
+  /* number of blocks allocated */
+  stats->Set(blocks_symbol, Integer::New(s->st_blocks));
+
+  /* time of last access */
+  stats->Set(atime_symbol, NODE_UNIXTIME_V8(s->st_atime));
+
+  /* time of last modification */
+  stats->Set(mtime_symbol, NODE_UNIXTIME_V8(s->st_mtime));
+
+  /* time of last status change */
+  stats->Set(ctime_symbol, NODE_UNIXTIME_V8(s->st_ctime));
+
+  return scope.Close(stats);
+}
+
 
 
 }  // namespace node
