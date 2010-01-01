@@ -37,26 +37,9 @@ do {                                                                      \
                                   __callback##_TEM);                      \
 } while (0)
 
-enum encoding {ASCII, UTF8, BINARY};
-enum encoding ParseEncoding(v8::Handle<v8::Value> encoding_v,
-                            enum encoding _default = BINARY);
 void FatalException(v8::TryCatch &try_catch);
 
-v8::Local<v8::Value> Encode(const void *buf, size_t len,
-                            enum encoding encoding = BINARY);
-
-// Returns -1 if the handle was not valid for decoding
-ssize_t DecodeBytes(v8::Handle<v8::Value>,
-                    enum encoding encoding = BINARY);
-
-// returns bytes written.
-ssize_t DecodeWrite(char *buf,
-                    size_t buflen,
-                    v8::Handle<v8::Value>,
-                    enum encoding encoding = BINARY);
-
 v8::Local<v8::Object> BuildStatsObject(struct stat * s);
-
 
 }  // namespace node
 #endif  // SRC_NODE_H_

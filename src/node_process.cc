@@ -2,6 +2,8 @@
 #include <node_process.h>
 
 #include <node.h>
+#include <node_encodings.h>
+
 #include <unistd.h>
 #include <dlfcn.h> /* dlopen(), dlsym() */
 #include <errno.h> /* errno */

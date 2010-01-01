@@ -4,6 +4,7 @@
 
 #include <node.h>
 #include <node_events.h>
+#include <node_encodings.h>
 #include <v8.h>
 
 namespace node {

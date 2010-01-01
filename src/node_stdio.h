@@ -2,6 +2,7 @@
 #define node_stdio_h
 
 #include <node.h>
+#include <node_encodings.h>
 
 #include <v8.h>
 #include <evcom.h>

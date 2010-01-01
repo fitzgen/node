@@ -325,6 +325,7 @@ def build(bld):
     src/node_process.cc
     src/node_system.cc
     src/node_os.cc
+    src/node_encodings.cc
     src/node_child_process.cc
     src/node_constants.cc
     src/node_dns.cc
