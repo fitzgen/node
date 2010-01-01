@@ -50,6 +50,9 @@ void System::Initialize(Handle<Object> target, int argc, char **argv, char **env
   // assign ENV
   target->Set(String::NewSymbol("env"), env);
   target->Set(String::NewSymbol("ENV"), env);
+
+  // compile
+  NODE_SET_METHOD(target, "compile", System::Compile);
 }
 
 Handle<Value> System::Compile(const Arguments& args) {
