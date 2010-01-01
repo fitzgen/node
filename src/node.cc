@@ -23,6 +23,7 @@
 #include <node_natives.h>
 #include <node_version.h>
 #include <node_system.h>
+#include <node_os.h>
 
 #include <v8-debug.h>
 
@@ -334,15 +335,6 @@ static Handle<Value> ByteLength(const Arguments& args) {
   return scope.Close(length);
 }
 
-v8::Handle<v8::Value> Exit(const v8::Arguments& args) {
-  int r = 0;
-  if (args.Length() > 0)
-    r = args[0]->IntegerValue();
-  fflush(stderr);
-  exit(r);
-  return Undefined();
-}
-
 #ifdef __APPLE__
 #define HAVE_GETMEM 1
 /* Researched by Tim Becker and Michael Knight
@@ -494,40 +486,6 @@ v8::Handle<v8::Value> MemoryUsage(const v8::Arguments& args) {
 #endif
 }
 
-
-v8::Handle<v8::Value> Kill(const v8::Arguments& args) {
-  HandleScope scope;
-  
-  if (args.Length() < 1 || !args[0]->IsNumber()) {
-    return ThrowException(Exception::Error(String::New("Bad argument.")));
-  }
-  
-  pid_t pid = args[0]->IntegerValue();
-
-  int sig = SIGTERM;
-
-  if (args.Length() >= 2) {
-    if (args[1]->IsNumber()) {
-      sig = args[1]->Int32Value();
-    } else if (args[1]->IsString()) {
-      Local<String> signame = args[1]->ToString();
-
-      Local<Value> sig_v = Constants::constants->Get(signame);
-      if (!sig_v->IsNumber()) {
-        return ThrowException(Exception::Error(String::New("Unknown signal")));
-      }
-      sig = sig_v->Int32Value();
-    }
-  }
-
-  int r = kill(pid, sig);
-
-  if (r != 0) {
-    return ThrowException(Exception::Error(String::New(strerror(errno))));
-  }
-
-  return Undefined();
-}
 
 typedef void (*extInit)(Handle<Object> exports);
 
@@ -705,10 +663,10 @@ static Local<Object> Load(int argc, char *argv[]) {
   // define various internal methods
   Events::Initialize(process);
   NODE_SET_METHOD(process, "_byteLength", ByteLength);
-  NODE_SET_METHOD(process, "reallyExit", Exit);
+  NODE_SET_METHOD(process, "reallyExit", Os::Exit);
   FileSystem::Initialize(process);
   NODE_SET_METHOD(process, "dlopen", DLOpen);
-  NODE_SET_METHOD(process, "kill", Kill);
+  NODE_SET_METHOD(process, "kill", Os::Kill);
   NODE_SET_METHOD(process, "memoryUsage", MemoryUsage);
 
   // Initialize the stats object
