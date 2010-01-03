@@ -1,0 +1,11 @@
+{
+    "name": "node",
+    "description": "An event-driven I/O engine",
+    "author": {
+        "name": "Ryan Dahl",
+        "email": "ry@tinyclouds.org",
+        "url": "http://four.livejournal.com/",
+        "github": "ry"
+    },
+    "lib": "narwhal/lib"
+}

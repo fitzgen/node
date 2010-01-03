@@ -1,4 +1,5 @@
 # /usr/bin/env python
+
 import re
 import Options
 import sys, os, shutil
@@ -293,28 +294,33 @@ def build(bld):
   if bld.env["USE_DEBUG"]:
     coupling.clone("debug")
 
-  ### src/native.cc
+  ### src/node_natives.h
+  ### src/node_narwhal_js.h
   def javascript_in_c(task):
     env = task.env
     source = map(lambda x: x.srcpath(env), task.inputs)
     targets = map(lambda x: x.srcpath(env), task.outputs)
     js2c.JS2C(source, targets)
 
-  native_cc = bld.new_task_gen(
-    source='src/node.js',
-    target="src/node_natives.h",
-    before="cxx"
-  )
-  native_cc.install_path = None
+  for source, target in (
+    ('src/node.js', 'src/node_natives.h'),
+    ('narwhal/src/node_narwhal.js', 'src/node_narwhal_js.h'),
+  ):
+    native_cc = bld.new_task_gen(
+      source=source,
+      target=target,
+      before="cxx"
+    )
+    native_cc.install_path = None
 
-  # Add the rule /after/ cloning the debug
-  # This is a work around for an error had in python 2.4.3 (I'll paste the
-  # error that was had into the git commit meessage. git-blame to find out
-  # where.)
-  if bld.env["USE_DEBUG"]:
-    native_cc_debug = native_cc.clone("debug")
-    native_cc_debug.rule = javascript_in_c
-  native_cc.rule = javascript_in_c
+    # Add the rule /after/ cloning the debug
+    # This is a work around for an error had in python 2.4.3 (I'll paste the
+    # error that was had into the git commit meessage. git-blame to find out
+    # where.)
+    if bld.env["USE_DEBUG"]:
+      native_cc_debug = native_cc.clone("debug")
+      native_cc_debug.rule = javascript_in_c
+    native_cc.rule = javascript_in_c
 
   ### node lib
   node = bld.new_task_gen("cxx", "program")
@@ -357,6 +363,48 @@ def build(bld):
   node.install_path = '${PREFIX}/bin'
   node.chmod = 0755
 
+  ### node_narwhal lib
+  node_narwhal = bld.new_task_gen("cxx", "program")
+  node_narwhal.name         = "node_narwhal"
+  node_narwhal.target       = "node_narwhal"
+  node_narwhal.source = """
+    narwhal/src/node_narwhal.cc
+    narwhal/src/node_modules.cc
+    src/node_common.cc
+    src/node_process.cc
+    src/node_system.cc
+    src/node_os.cc
+    src/node_encodings.cc
+    src/node_child_process.cc
+    src/node_constants.cc
+    src/node_dns.cc
+    src/node_events.cc
+    src/node_file.cc
+    src/node_http.cc
+    src/node_net.cc
+    src/node_signal_handler.cc
+    src/node_stat.cc
+    src/node_stdio.cc
+    src/node_timer.cc
+  """
+  node_narwhal.includes = """
+    src/
+    narwhal/include
+    deps/v8/include
+    deps/libev
+    deps/udns
+    deps/libeio
+    deps/evcom
+    deps/http_parser
+    deps/coupling
+  """
+  node_narwhal.add_objects = 'ev eio evcom http_parser coupling'
+  node_narwhal.uselib_local = ''
+  node_narwhal.uselib = 'UDNS V8 EXECINFO DL GPGERROR GNUTLS'
+
+  node_narwhal.install_path = '${PREFIX}/lib'
+  node_narwhal.install_path = '${PREFIX}/bin'
+  node_narwhal.chmod = 0755
   def subflags(program):
     if os.path.exists(join(cwd, ".git")):
       actual_version=cmd_output("git describe").strip()
