@@ -9,9 +9,7 @@ namespace node {
 
 const char* ToCString(const v8::String::Utf8Value& value);
 void ReportException(v8::TryCatch *try_catch);
-v8::Handle<v8::Value> ExecuteString(v8::Handle<v8::String> source,
-                                    v8::Handle<v8::Value> filename);
-v8::Handle<v8::Value> ExecuteString(v8::Handle<v8::String> source,
+v8::Local<v8::Value> ExecuteString(v8::Handle<v8::String> source,
                                     v8::Handle<v8::Value> filename);
 void OnFatalError(const char* location, const char* message);
 void FatalException(v8::TryCatch &try_catch);
@@ -21,7 +19,7 @@ void EIOWantPoll(void);
 
 void DebugMessageCallback(EV_P_ ev_async *watcher, int revents);
 void DebugMessageDispatch(void);
-void ExecuteNativeJS(const char *filename, const char *data);
+v8::Local<v8::Value> ExecuteNativeJS(const char *filename, const char *data);
 
 } // namespace node
 

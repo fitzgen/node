@@ -66,7 +66,7 @@ void ReportException(TryCatch *try_catch) {
 }
 
 // Executes a str within the current v8 context.
-Handle<Value> ExecuteString(Handle<String> source,
+Local<Value> ExecuteString(Handle<String> source,
                             Handle<Value> filename) {
   HandleScope scope;
   TryCatch try_catch;
@@ -187,10 +187,10 @@ void DebugMessageDispatch(void) {
 }
 
 
-void ExecuteNativeJS(const char *filename, const char *data) {
+Local<Value> ExecuteNativeJS(const char *filename, const char *data) {
   HandleScope scope;
   TryCatch try_catch;
-  ExecuteString(String::New(data), String::New(filename));
+  Local<Value> result = ExecuteString(String::New(data), String::New(filename));
   // There should not be any syntax errors in these file!
   // If there are exit the process.
   if (try_catch.HasCaught())  {
@@ -199,6 +199,7 @@ void ExecuteNativeJS(const char *filename, const char *data) {
     ReportException(&try_catch);
     exit(1);
   }
+  return scope.Close(result);
 }
 
 } // namespace node
