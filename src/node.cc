@@ -1197,7 +1197,8 @@ static void ParseArgs(int *argc, char **argv) {
     const char *arg = argv[i];
     if (strstr(arg, "--debug") == arg) {
       ParseDebugOpt(arg);
-      argv[i] = reinterpret_cast<const char*>("");
+      argv[i] = (char*)(malloc(1));
+      argv[i][0] = '\0';
       option_end_index = i;
     } else if (strcmp(arg, "--version") == 0 || strcmp(arg, "-v") == 0) {
       printf("%s\n", NODE_VERSION);
@@ -1209,7 +1210,8 @@ static void ParseArgs(int *argc, char **argv) {
       PrintHelp();
       exit(0);
     } else if (strcmp(arg, "--v8-options") == 0) {
-      argv[i] = reinterpret_cast<const char*>("--help");
+      argv[i] = (char *)(malloc(strlen("--help") + 1));
+      strcpy(argv[i], "--help");
       option_end_index = i+1;
     } else if (argv[i][0] != '-') {
       option_end_index = i-1;
